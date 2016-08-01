@@ -21,9 +21,17 @@ public class LocationValidator{
         if (!bankArea.contains(currentPlayerLocation)) {
             walkToBank(bankArea);
             return false;
-        }
-        else {
+        } else {
             return true;
+        }
+    }
+
+    public boolean insideTanningArea(Area tanArea, Player currentPlayerLocation) {
+
+        if (tanArea.container(currentPlayerLocation)) {
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -10,7 +10,7 @@ import util.CurrentStatus;
 import util.LocationValidator;
 import util.Banker;
 import util.LeatherType;
-
+import util.Tanner;
 
 
 /**
@@ -25,13 +25,13 @@ public class main extends AbstractScript{
 
     LocationValidator initializer = new LocationValidator(this);
     Banker bank = new Banker(this);
+    Tanner tanner = new Tanner(this);
 
     //Determines the type of leather you want and the cost
     private LeatherType tanStatus;
 
     //Current status in script traversal
     private CurrentStatus currentStatus;
-
 
 
     @Override
@@ -93,12 +93,15 @@ public class main extends AbstractScript{
     private void handleTravel() {
 
         //Travel to tanner
-        //TO:DO Need to handle closed door
         initializer.walkToTanner(tannerArea);
 
         NPC desertTanner = getNpcs().closest(tanner -> tanner != null && tanner.hasAction("Trade"));
 
-        if (desertTanner.isOnScreen()) {
+        //Checks to see if the door to tanner is present and open, if not open it
+        tanner.handleDoorOutside();
+
+        //Ensure the tanner is present and the player is in the tanning area
+        if (desertTanner.isOnScreen() && initializer.insideTanningArea(tannerArea, getLocalPlayer() == true)) {
             currentStatus = CurrentStatus.TAN;
         }
     }
@@ -106,26 +109,26 @@ public class main extends AbstractScript{
     /** Handle all the logic for tanning the inventory hides */
     private void handleTanning() {
 
-        //Get the banker in alkharid
-        NPC desertTanner = getNpcs().closest(tanner -> tanner != null && tanner.hasAction("Trade"));
+        //Trade the dude
+        tanner.initiateTrade();
 
-        //Tan Tanner
-        if (desertTanner != null) {
-            log("Attempting to trade");
-            desertTanner.interact("Trade");
-            sleepUntil(() -> getWidgets().getWidgetChild(324, 125).isVisible(), 3000);
-        } else {
-            log("Tanner is null ERROR");
+        //Tan all the hides based on widget-type
+        if (tanStatus.getLeatherType().contains("soft")) {
+            tanner.tanAllHides(124);
+
+        } else if (tanStatus.getLeatherType().contains("hard")) {
+            tanner.tanAllHides(125);
         }
 
-        if (getWidgets().getWidgetChild(324, 125) !=null){
-            getWidgets().getWidgetChild(324, 125).interact("Tan All");
-            log("making");
-        }
-        else {
-            log("widget is null");
-        }
-        currentStatus = CurrentStatus.INITIALIZING;
+        //See if the process completed successfully
+        if (tanner.checkHidesTanned()) {
 
+            //Handle if the door is closed from the inside
+            if (tanner.handleDoorInside() == true) {
+
+                //Restart the work-flow
+                currentStatus = CurrentStatus.INITIALIZING;
+            }
+        }
     }
 }

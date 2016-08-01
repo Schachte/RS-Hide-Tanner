@@ -1,6 +1,5 @@
 package util;
 
-
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.wrappers.interactive.NPC;
 
@@ -40,6 +39,16 @@ public class Banker {
             //Deposit everything into the bank
             script.getBank().depositAllExcept(items -> items != null && items.getName().contains("Coins"));
         }
+    }
+
+    /** Check to see if the player has any more hides */
+    public boolean checkHidesExistInBank() {
+
+        //If hides exist in inventory || bank
+            //Return true
+        //Else
+            //Return false
+
     }
 
     /** Checks if there is enough GP to tan the hide count based on the type specified */
