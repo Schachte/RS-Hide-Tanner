@@ -55,7 +55,7 @@ public class Tanner {
     }
 
     /** Initiate leather trading with the dude */
-    public void initiateTrade() {
+    public void initiateTrade(int child_widget_int) {
 
         //Get the desert tanner dude
         //TO:DO add this into a try-catch block
@@ -65,7 +65,7 @@ public class Tanner {
         if (desertTanner != null) {
             log("Attempting to trade");
             desertTanner.interact("Trade");
-            sleepUntil(() -> getWidgets().getWidgetChild(324, 125).isVisible(), 3000);
+            sleepUntil(() -> getWidgets().getWidgetChild(324, child_widget_int).isVisible(), 3000);
         } else {
             log("Tanner is null ERROR");
         }

@@ -24,6 +24,8 @@ public class main extends AbstractScript{
     Area alkharidBank = new Area(3269, 3161, 3271, 3170, 0);
     Area tannerArea = new Area(3271, 3189, 3276, 3194, 0);
 
+    //TO:D0 MAKE A GE SELECTION AREA AND WALK WHEN HIDES ARE GONE
+
     //Object validating different player locations in-game
     LocationValidator initializer = new LocationValidator(this);
 
@@ -63,7 +65,14 @@ public class main extends AbstractScript{
             case INITIALIZING:
                 log("We are initializing");
                 boolean insideBank = initializer.insideBankingArea(alkharidBank, tannerArea, getLocalPlayer());
-                if (insideBank) { currentStatus = CurrentStatus.BANKING; }
+
+                if (bank.checkHidesExistInBank()) {
+                    if (insideBank) {
+                        currentStatus = CurrentStatus.BANKING;
+                    }
+                } else {
+                    log("You have no more hides, we need to stop or walk to GE based on GUI selection");
+                }
                 break;
             case BANKING:
                 log("We are banking");
@@ -116,14 +125,18 @@ public class main extends AbstractScript{
     /** Handle all the logic for tanning the inventory hides */
     private void handleTanning() {
 
-        //Trade the dude
-        tanner.initiateTrade();
 
         //Tan all the hides based on widget-type
         if (tanStatus.getLeatherType().contains("soft")) {
+
+            //Trade the dude
+            tanner.initiateTrade(124);
             tanner.tanAllHides(124);
 
         } else if (tanStatus.getLeatherType().contains("hard")) {
+
+            //Trade the dude
+            tanner.initiateTrade(125);
             tanner.tanAllHides(125);
         }
 

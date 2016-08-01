@@ -69,11 +69,11 @@ public class Banker {
         //Total cost to spend tanning these hides
         if (leather.getLeatherType().contains("soft")) {
             script.log("Tanning soft leather");
-            totalCost = cowHideCount*1;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (leather.getLeatherType().contains("hard")) {
             script.log("Tanning hard leather");
-            totalCost = cowHideCount*3;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (totalCost == -1) {
             script.log("Errored!");
@@ -99,11 +99,11 @@ public class Banker {
         //Total cost to spend tanning these hides
         if (leather.getLeatherType().contains("soft")) {
             script.log("Tanning soft leather");
-            totalCost = cowHideCount*1;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (leather.getLeatherType().contains("hard")) {
             script.log("Tanning hard leather");
-            totalCost = cowHideCount*3;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (totalCost == -1) {
             script.log("Errored!");

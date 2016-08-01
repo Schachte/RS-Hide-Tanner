@@ -29,7 +29,7 @@ public class LocationValidator{
     /** Check to see if you're currently inside the tanning area */
     public boolean insideTanningArea(Area tanArea, Player currentPlayerLocation) {
 
-        if (tanArea.container(currentPlayerLocation)) {
+        if (tanArea.contains(currentPlayerLocation)) {
             return true;
         } else {
             return false;
