@@ -42,7 +42,6 @@ public class Tanner {
 
         //Else
            //Return false
-
     }
 
     /** Function to ensure tanning is complete */
@@ -58,6 +57,8 @@ public class Tanner {
     /** Initiate leather trading with the dude */
     public void initiateTrade() {
 
+        //Get the desert tanner dude
+        //TO:DO add this into a try-catch block
         NPC desertTanner = getNpcs().closest(tanner -> tanner != null && tanner.hasAction("Trade"));
 
         //Tan Tanner

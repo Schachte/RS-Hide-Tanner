@@ -15,8 +15,8 @@ public class LocationValidator{
         this.script = script;
     }
 
-    /** Check to see where you are */
-    public boolean validateLocation(Area bankArea, Area tanArea, Player currentPlayerLocation) {
+    /** Check to see if you're in the bank */
+    public boolean insideBankingArea(Area bankArea, Area tanArea, Player currentPlayerLocation) {
 
         if (!bankArea.contains(currentPlayerLocation)) {
             walkToBank(bankArea);
@@ -26,6 +26,7 @@ public class LocationValidator{
         }
     }
 
+    /** Check to see if you're currently inside the tanning area */
     public boolean insideTanningArea(Area tanArea, Player currentPlayerLocation) {
 
         if (tanArea.container(currentPlayerLocation)) {

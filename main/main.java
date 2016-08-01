@@ -17,7 +17,7 @@ import util.Tanner;
  * Banks, Tans and Travels. The Ultimate F2P Bot Tanner
  */
 
-@ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides like a beast", name = "tanner", version = 1.0)
+@ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides (soft or hard) in AlKharid, then walks to GE", name = "QuesoTanner", version = 1.0)
 public class main extends AbstractScript{
 
     Area alkharidBank = new Area(3269, 3161, 3271, 3170, 0);
@@ -33,7 +33,7 @@ public class main extends AbstractScript{
     //Current status in script traversal
     private CurrentStatus currentStatus;
 
-
+    /** Set the initial values */
     @Override
     public void onStart() {
 
@@ -48,6 +48,7 @@ public class main extends AbstractScript{
         super.onStart();
     }
 
+    /** Do this over and over again until base condition is met */
     @Override
     public int onLoop() {
 
@@ -55,7 +56,7 @@ public class main extends AbstractScript{
 
             case INITIALIZING:
                 log("We are initializing");
-                boolean insideBank = initializer.validateLocation(alkharidBank, tannerArea, getLocalPlayer());
+                boolean insideBank = initializer.insideBankingArea(alkharidBank, tannerArea, getLocalPlayer());
                 if (insideBank) { currentStatus = CurrentStatus.BANKING; }
                 break;
             case BANKING:
