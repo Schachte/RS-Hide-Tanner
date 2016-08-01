@@ -20,11 +20,17 @@ import util.Tanner;
 @ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides (soft or hard) in AlKharid, then walks to GE", name = "QuesoTanner", version = 1.0)
 public class main extends AbstractScript{
 
+    //X, Y, Z DIAGONAL COORDINATES OF BANK AND TANNING
     Area alkharidBank = new Area(3269, 3161, 3271, 3170, 0);
     Area tannerArea = new Area(3271, 3189, 3276, 3194, 0);
 
+    //Object validating different player locations in-game
     LocationValidator initializer = new LocationValidator(this);
+
+    //Bank instantiation for bank interaction
     Banker bank = new Banker(this);
+
+    //Tanner instantiation for tanner interaction
     Tanner tanner = new Tanner(this);
 
     //Determines the type of leather you want and the cost
