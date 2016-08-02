@@ -134,4 +134,5 @@ public class Banker {
         //Get all your hides in the inventory to prep for tanning
         script.getBank().withdrawAll(hides -> hides != null && hides.getName().contains("Cowhide"));
     }
+
 }

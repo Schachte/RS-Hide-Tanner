@@ -20,8 +20,19 @@ import util.LeatherType;
 import util.Tanner;
 
 
-/**
+/**********************************************************
  * Banks, Tans and Travels. The Ultimate F2P Bot Tanner
+ **********************************************************/
+
+/**
+ *
+ ____ _  _ ____ ____ ____ _  _ ___    ___  _  _ ____ ____
+ |    |  | |__/ |__/ |___ |\ |  |     |__] |  | | __ [__
+ |___ |__| |  \ |  \ |___ | \|  |     |__] |__| |__] ___]
+
+ **** Tanner goes null in console on initial trade
+ **** Banking has a slight delay delay
+ **** Handling door closed/open issue could be quicker
  */
 
 @ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides (soft or hard) in AlKharid, then walks to GE", name = "QuesoTanner", version = 1.0)
@@ -150,7 +161,6 @@ public class main extends AbstractScript {
     /** Draw the paint for the script */
     public void onPaint(Graphics g)
     {
-
         //Get the bot running time
         timeRan = System.currentTimeMillis() - this.timeBegan;
 
@@ -160,21 +170,22 @@ public class main extends AbstractScript {
         //Draw the bg image on-screen
         g.drawImage(bg, 5, 346, null);
 
-        //Hides Left (101, 389)
+        //Hides Left
+        //To-DO Move this down a little bit
         g.drawString("Hides Left", 101, 389);
 
-        //Hides Completed(140, 411)
+        //Hides Completed
         g.drawString(checkHideCount(), 140, 411);
 
-        //Estimated Profit(140, 426)
+        //Estimated Profit
+        //TO-DO Move this down a little bit
         g.drawString(checkProfit(), 140, 426);
 
-        //Total Running Time(156, 446)
+        //Total Running Time
         g.drawString(timeConversion(timeRan), 156, 446);
 
-        //Current Status(373, 390)
+        //Current Status
         g.drawString(getCurrentStatus(), 373, 390);
-
     }
 
     /** Get a string version of the current status in the game */
@@ -186,7 +197,7 @@ public class main extends AbstractScript {
         } else if (currentStatus == currentStatus.TAN) {
             return "Currently Tanning";
         } else if (currentStatus == currentStatus.TRAVEL) {
-            return "Travelling to Destination";
+            return "Travelling";
         } else {
             return "SCRIPT ERROR! Restart!";
         }
@@ -219,7 +230,7 @@ public class main extends AbstractScript {
         sleepUntil(() -> getBank().isOpen(), 3500);
 
         if (!bank.checkHidesExistInBank()){
-            //stop();
+            stop();
         }
 
         if (goldWithdrawAction == 0) {

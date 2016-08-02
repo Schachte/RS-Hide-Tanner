@@ -48,4 +48,6 @@ public class LocationValidator{
         script.getWalking().walk(tannerLocation.getRandomTile());
 
     }
+
+    /** TO-DO: Integrate method that walks to the grand exchange */
 }
