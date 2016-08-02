@@ -1,6 +1,5 @@
 package util;
 
-
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.wrappers.interactive.NPC;
 
@@ -38,8 +37,23 @@ public class Banker {
             script.log("Bank is open");
 
             //Deposit everything into the bank
-            script.getBank().depositAllExcept(items -> items != null && items.getName().contains("Coins"));
+            script.getBank().depositAllExcept(coins -> coins != null && coins.getName().contains("Coins"));
         }
+    }
+
+    /** Check to see if the player has any more hides */
+    public boolean checkHidesExistInBank() {
+
+        //TO-DO - FINISH THIS FUNCTION
+
+        if(script.getBank().contains(hides -> hides != null && hides.getName().contains("Cowhide"))) {
+            script.log("we have more hides!");
+            return true;
+        } else {
+            script.log("we are out of hides!");
+            return false;
+        }
+
     }
 
     /** Checks if there is enough GP to tan the hide count based on the type specified */
@@ -60,11 +74,11 @@ public class Banker {
         //Total cost to spend tanning these hides
         if (leather.getLeatherType().contains("soft")) {
             script.log("Tanning soft leather");
-            totalCost = cowHideCount*1;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (leather.getLeatherType().contains("hard")) {
             script.log("Tanning hard leather");
-            totalCost = cowHideCount*3;
+            totalCost = cowHideCount*leather.getLeatherCost();
         }
         else if (totalCost == -1) {
             script.log("Errored!");
@@ -72,7 +86,7 @@ public class Banker {
 
         if (inventoryCoins >= totalCost || bankCoins >= totalCost) {
             script.log("You have enough money to tan all these hides");
-            script.getBank().depositAll(items -> items != null && items.getName().contains("Coins"));
+            script.getBank().depositAllExcept(items -> items != null && items.getName().contains("Coins"));
             return true;
         } else {
             script.log("You do not have enough money to tan all these hides");
@@ -90,18 +104,28 @@ public class Banker {
         //Total cost to spend tanning these hides
         if (leather.getLeatherType().contains("soft")) {
             script.log("Tanning soft leather");
-            totalCost = cowHideCount*1;
+            totalCost = cowHideCount*leather.getLeatherCost();
+
+            //TO:DO - Add in the math later if we're doing sufficientFundChecking
+            //script.getBank().withdraw(coins -> coins != null && coins.getName().contains("Coins"), totalCost);
+
+            script.getBank().withdraw(coins -> coins != null && coins.getName().contains("Coins"), 5000000);
+            script.sleepUntil(() -> script.getInventory().contains(coins -> coins != null && coins.getName().contains("Coins")), 3000);
         }
         else if (leather.getLeatherType().contains("hard")) {
             script.log("Tanning hard leather");
-            totalCost = cowHideCount*3;
+            totalCost = cowHideCount*leather.getLeatherCost();
+
+            //TO:DO - Add in the math later if we're doing sufficientFundChecking
+            //script.getBank().withdraw(coins -> coins != null && coins.getName().contains("Coins"), totalCost);
+
+            script.getBank().withdraw(coins -> coins != null && coins.getName().contains("Coins"), 5000000);
+            script.sleepUntil(() -> script.getInventory().contains(coins -> coins != null && coins.getName().contains("Coins")), 3000);
+
         }
         else if (totalCost == -1) {
             script.log("Errored!");
         }
-
-        //Get the amount of gold required to tan hides
-        script.getBank().withdraw(items -> items != null && items.getName().contains("Coins"), totalCost);
     }
 
     /** Withdraws max number of hides from the bank into inventory */

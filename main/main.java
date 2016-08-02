@@ -5,26 +5,36 @@ import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.Category;
 import org.dreambot.api.script.ScriptManifest;
+import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 import util.CurrentStatus;
 import util.LocationValidator;
 import util.Banker;
 import util.LeatherType;
-
+import util.Tanner;
 
 
 /**
  * Banks, Tans and Travels. The Ultimate F2P Bot Tanner
  */
 
-@ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides like a beast", name = "tanner", version = 1.0)
+@ScriptManifest(author = "CheeseQueso", category = Category.MONEYMAKING, description = "Tans hides (soft or hard) in AlKharid, then walks to GE", name = "QuesoTanner", version = 1.0)
 public class main extends AbstractScript{
 
+    //X, Y, Z DIAGONAL COORDINATES OF BANK AND TANNING
     Area alkharidBank = new Area(3269, 3161, 3271, 3170, 0);
-    Area tannerArea = new Area(3271, 3189, 3276, 3194, 0);
+    Area tannerArea = new Area(3271, 3189, 3275, 3193, 0);
 
+    //TO:D0 MAKE A GE SELECTION AREA AND WALK WHEN HIDES ARE GONE
+
+    //Object validating different player locations in-game
     LocationValidator initializer = new LocationValidator(this);
+
+    //Bank instantiation for bank interaction
     Banker bank = new Banker(this);
+
+    //Tanner instantiation for tanner interaction
+    Tanner tanner = new Tanner(this);
 
     //Determines the type of leather you want and the cost
     private LeatherType tanStatus;
@@ -32,8 +42,9 @@ public class main extends AbstractScript{
     //Current status in script traversal
     private CurrentStatus currentStatus;
 
+    private int goldWithdrawAction = 0;
 
-
+    /** Set the initial values */
     @Override
     public void onStart() {
 
@@ -48,6 +59,7 @@ public class main extends AbstractScript{
         super.onStart();
     }
 
+    /** Do this over and over again until base condition is met */
     @Override
     public int onLoop() {
 
@@ -55,8 +67,14 @@ public class main extends AbstractScript{
 
             case INITIALIZING:
                 log("We are initializing");
-                boolean insideBank = initializer.validateLocation(alkharidBank, tannerArea, getLocalPlayer());
-                if (insideBank) { currentStatus = CurrentStatus.BANKING; }
+
+                boolean insideBank = initializer.insideBankingArea(alkharidBank, getLocalPlayer());
+
+                    if (insideBank) {
+                        currentStatus = CurrentStatus.BANKING;
+                } else {
+                    log("You have no more hides, we need to stop or walk to GE based on GUI selection");
+                }
                 break;
             case BANKING:
                 log("We are banking");
@@ -75,30 +93,57 @@ public class main extends AbstractScript{
                 break;
         }
 
-        return Calculations.random(500, 2000);
+        if (currentStatus == currentStatus.TRAVEL || currentStatus == currentStatus.INITIALIZING) {
+            log("Click Travel");
+            return Calculations.random(1000, 2500);
+        } else {
+            log("Click not travel");
+            return Calculations.random(300, 1000);
+        }
+
     }
 
     /** Handle all the logic for withdrawing and depositing goods */
     private void handleBanking() {
 
         bank.bankBanker();
-        bank.depositAll();
-        bank.checkSufficientFunds(tanStatus);
-        bank.withdrawGold(tanStatus);
-        bank.withdrawHides();
-        currentStatus = CurrentStatus.TRAVEL;
+
+        sleepUntil(() -> getBank().isOpen(), 3500);
+
+        if (!bank.checkHidesExistInBank()){
+            stop();
+        }
+
+        if (goldWithdrawAction == 0) {
+            bank.withdrawGold(tanStatus);
+            log("Withdrew gold!");
+        }
+
+        if (getInventory().contains(coins -> coins != null && coins.getName().contains("Coins"))) {
+            goldWithdrawAction = 1;
+            bank.depositAll();
+
+            //TO-DO: This function is probably more annoying than useful.
+            //bank.checkSufficientFunds(tanStatus);
+
+            bank.withdrawHides();
+            currentStatus = CurrentStatus.TRAVEL;
+        }
     }
 
     /** Handle all the logic for traveling to and from the tanner NPC */
     private void handleTravel() {
 
         //Travel to tanner
-        //TO:DO Need to handle closed door
         initializer.walkToTanner(tannerArea);
 
         NPC desertTanner = getNpcs().closest(tanner -> tanner != null && tanner.hasAction("Trade"));
 
-        if (desertTanner.isOnScreen()) {
+        //Checks to see if the door to tanner is present and open, if not open it
+        tanner.handleDoorOutside(tannerArea);
+
+        //Ensure the tanner is present and the player is in the tanning area
+        if (desertTanner.isOnScreen() && initializer.insideTanningArea(tannerArea, getLocalPlayer())) {
             currentStatus = CurrentStatus.TAN;
         }
     }
@@ -106,26 +151,38 @@ public class main extends AbstractScript{
     /** Handle all the logic for tanning the inventory hides */
     private void handleTanning() {
 
-        //Get the banker in alkharid
-        NPC desertTanner = getNpcs().closest(tanner -> tanner != null && tanner.hasAction("Trade"));
+        //Tan all the hides based on widget-type
+        if (tanStatus.getLeatherType().contains("soft")) {
 
-        //Tan Tanner
-        if (desertTanner != null) {
-            log("Attempting to trade");
-            desertTanner.interact("Trade");
-            sleepUntil(() -> getWidgets().getWidgetChild(324, 125).isVisible(), 3000);
-        } else {
-            log("Tanner is null ERROR");
+            log("Tanning soft leather");
+
+            //Trade the dude
+            tanner.initiateTrade(124);
+            tanner.tanAllHides(124);
+
+        } else if (tanStatus.getLeatherType().contains("hard")) {
+
+            log("Tanning hard leather");
+
+            //Trade the dude
+            tanner.initiateTrade(125);
+            tanner.tanAllHides(125);
         }
 
-        if (getWidgets().getWidgetChild(324, 125) !=null){
-            getWidgets().getWidgetChild(324, 125).interact("Tan All");
-            log("making");
-        }
-        else {
-            log("widget is null");
-        }
-        currentStatus = CurrentStatus.INITIALIZING;
 
+        //See if the process completed successfully
+        if (tanner.checkHidesTanned()) {
+
+            log("All hides tanned sucessfully!");
+
+            //Handle if the door is closed from the inside
+            if (tanner.handleDoorInside()) {
+
+                log("Handled the door and exited the tanner.");
+
+                //Restart the work-flow
+                currentStatus = CurrentStatus.INITIALIZING;
+            }
+        }
     }
 }
